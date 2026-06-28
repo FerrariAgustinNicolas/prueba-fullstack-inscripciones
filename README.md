@@ -150,7 +150,165 @@ Las instrucciones se completarán a medida que se implemente cada parte.
 
 ### Ejecutar SQL
 
-Pendiente.
+Desde la raíz del proyecto, ejecutar:
+
+```bash
+mariadb --local-infile=1 -u TU_USUARIO -p < sql/01_schema_seed_queries.sql
+```
+
+El script crea la base de datos `inscripciones_db`, define las tablas principales, carga datos desde `data/alumnos_muestra.csv`, genera movimientos plausibles de historial, ejecuta las consultas requeridas, calcula un indicador de negocio y crea un stored procedure para registrar cambios de estatus.
+
+El script está preparado para ejecutarse desde cero. Por ese motivo, al inicio elimina y vuelve a crear la base de datos:
+
+```sql
+DROP DATABASE IF EXISTS inscripciones_db;
+CREATE DATABASE inscripciones_db;
+```
+
+Esto permite reproducir la solución de forma limpia, pero también implica que cualquier cambio manual realizado después de ejecutar el script se pierde si el script se vuelve a correr completo.
+
+---
+
+### Verificación básica de la base de datos
+
+Luego de ejecutar el script, se puede ingresar a MariaDB con:
+
+```bash
+mariadb -u TU_USUARIO -p
+```
+
+Y verificar:
+
+```sql
+USE inscripciones_db;
+
+SHOW TABLES;
+
+SELECT COUNT(*) AS total_alumnos FROM alumnos;
+SELECT COUNT(*) AS total_programas FROM programas;
+SELECT COUNT(*) AS total_inscripciones FROM inscripciones;
+SELECT COUNT(*) AS total_historial FROM historial_estatus;
+
+SHOW PROCEDURE STATUS
+WHERE Db = 'inscripciones_db';
+```
+
+---
+
+### Decisiones de diseño SQL
+
+* Se utilizó un esquema relacional simple con cuatro tablas principales: `alumnos`, `programas`, `inscripciones` e `historial_estatus`.
+* La tabla `alumnos` almacena los datos generales del alumno.
+* La tabla `programas` funciona como catálogo de programas académicos.
+* La tabla `inscripciones` relaciona alumnos con programas y almacena el estatus actual de cada inscripción.
+* La tabla `historial_estatus` registra los cambios de estatus en el tiempo, permitiendo trazabilidad y análisis histórico.
+* Los estatus se implementaron con `ENUM`, ya que la consigna define una lista cerrada de valores posibles.
+* Se agregó una restricción `UNIQUE (id_alumno, id_programa)` para evitar duplicar la inscripción de un mismo alumno en el mismo programa.
+* Se agregaron índices básicos sobre columnas utilizadas en filtros, joins y consultas frecuentes, como `estatus_actual`, `id_programa`, `id_inscripcion` y `fecha_cambio`.
+
+---
+
+### Supuestos tomados
+
+* El archivo `alumnos_muestra.csv` representa un snapshot del estado actual de los alumnos.
+* El CSV no contiene historial real de cambios de estatus, por lo que se generaron movimientos plausibles de muestra.
+* Como el CSV no incluye una fecha de ingreso separada, se utilizó `fecha_inscripcion` como `fecha_ingreso` inicial del alumno.
+* Se conservaron los estatus normalizados en formato técnico, por ejemplo `baja_empresa`, `baja_programa` y `reingreso`.
+* El historial generado tiene fines de prueba y permite resolver las consultas, el indicador y los análisis solicitados.
+* El stored procedure `sp_registrar_cambio_estatus` representa la operación principal del sistema para registrar cambios de estado de una inscripción.
+
+---
+
+### Probar el stored procedure
+
+El stored procedure creado se llama:
+
+```sql
+sp_registrar_cambio_estatus
+```
+
+Recibe tres parámetros:
+
+```sql
+p_id_inscripcion
+p_nuevo_estatus
+p_motivo
+```
+
+Primero se puede consultar una inscripción existente:
+
+```sql
+USE inscripciones_db;
+
+SELECT
+    id_inscripcion,
+    id_alumno,
+    estatus_actual
+FROM inscripciones
+LIMIT 5;
+```
+
+Luego se puede ejecutar un cambio de estatus. Por ejemplo, si la inscripción `1` tiene estatus `activo`, se puede cambiar a `suspendido`:
+
+```sql
+CALL sp_registrar_cambio_estatus(
+    1,
+    'suspendido',
+    'Prueba de cambio de estatus desde stored procedure'
+);
+```
+
+El procedimiento actualiza el estatus actual en la tabla `inscripciones` e inserta el movimiento correspondiente en `historial_estatus`.
+
+Para verificar el cambio:
+
+```sql
+SELECT
+    id_inscripcion,
+    id_alumno,
+    estatus_actual
+FROM inscripciones
+WHERE id_inscripcion = 1;
+```
+
+Para verificar el historial generado:
+
+```sql
+SELECT
+    id_historial,
+    id_inscripcion,
+    estatus_anterior,
+    estatus_nuevo,
+    fecha_cambio,
+    motivo
+FROM historial_estatus
+WHERE id_inscripcion = 1
+ORDER BY id_historial DESC;
+```
+
+También se puede probar el manejo de errores con una inscripción inexistente:
+
+```sql
+CALL sp_registrar_cambio_estatus(
+    999999,
+    'activo',
+    'Prueba con inscripción inexistente'
+);
+```
+
+En ese caso, el procedimiento devuelve un error controlado indicando que la inscripción no existe.
+
+También valida que no se registre un cambio si el nuevo estatus es igual al estatus actual:
+
+```sql
+CALL sp_registrar_cambio_estatus(
+    1,
+    'suspendido',
+    'Prueba repetida con el mismo estatus'
+);
+```
+
+Si la inscripción ya está en `suspendido`, el procedimiento devuelve un error controlado indicando que el nuevo estatus es igual al estatus actual.
 
 ### Ejecutar notebook Python
 
