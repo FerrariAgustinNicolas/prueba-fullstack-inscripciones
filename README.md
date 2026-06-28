@@ -13,9 +13,8 @@ El objetivo es construir un mini-sistema para registrar, consultar y analizar in
 
 ## Estructura del proyecto
 
-
+```text
 prueba-fullstack-inscripciones/
-│
 ├── data/
 │   └── alumnos_muestra.csv
 │
@@ -34,7 +33,7 @@ prueba-fullstack-inscripciones/
 │
 ├── README.md
 └── .gitignore
-
+```
 
 ---
 
