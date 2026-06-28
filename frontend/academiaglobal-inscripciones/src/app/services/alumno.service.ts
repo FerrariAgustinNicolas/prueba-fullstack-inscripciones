@@ -34,6 +34,10 @@ export class AlumnoService {
     return this.programasSubject.value;
   }
 
+  obtenerAlumnoPorId(alumnoId: number): Alumno | undefined {
+    return this.alumnosSubject.value.find((alumno) => alumno.id === alumnoId);
+  }
+
   agregarAlumno(alumno: Omit<Alumno, 'id' | 'estatusActual' | 'historial'>): void {
     const alumnosActuales = this.alumnosSubject.value;
     const nuevoId = this.generarNuevoId(alumnosActuales);
@@ -62,33 +66,60 @@ export class AlumnoService {
     alumnoId: number,
     nuevoEstatus: EstatusAlumno,
     motivo: string
-  ): void {
-    const alumnosActualizados = this.alumnosSubject.value.map((alumno) => {
-      if (alumno.id !== alumnoId) {
-        return alumno;
-      }
+  ): { ok: boolean; mensaje: string } {
+    const alumnosActuales = this.alumnosSubject.value;
+    const alumno = alumnosActuales.find((item) => item.id === alumnoId);
 
-      if (alumno.estatusActual === nuevoEstatus) {
-        return alumno;
-      }
-
-      const nuevoMovimiento: HistorialEstatus = {
-        id: Date.now(),
-        alumnoId: alumno.id,
-        estatusAnterior: alumno.estatusActual,
-        estatusNuevo: nuevoEstatus,
-        fechaCambio: new Date().toISOString().split('T')[0],
-        motivo,
+    if (!alumno) {
+      return {
+        ok: false,
+        mensaje: 'No se encontró el alumno seleccionado.',
       };
+    }
+
+    if (alumno.estatusActual === nuevoEstatus) {
+      return {
+        ok: false,
+        mensaje: 'El nuevo estatus no puede ser igual al estatus actual.',
+      };
+    }
+
+    const motivoNormalizado = motivo.trim();
+
+    if (!motivoNormalizado) {
+      return {
+        ok: false,
+        mensaje: 'El motivo del cambio es obligatorio.',
+      };
+    }
+
+    const nuevoMovimiento: HistorialEstatus = {
+      id: Date.now(),
+      alumnoId: alumno.id,
+      estatusAnterior: alumno.estatusActual,
+      estatusNuevo: nuevoEstatus,
+      fechaCambio: new Date().toISOString().split('T')[0],
+      motivo: motivoNormalizado,
+    };
+
+    const alumnosActualizados = alumnosActuales.map((item) => {
+      if (item.id !== alumno.id) {
+        return item;
+      }
 
       return {
-        ...alumno,
+        ...item,
         estatusActual: nuevoEstatus,
-        historial: [...alumno.historial, nuevoMovimiento],
+        historial: [...item.historial, nuevoMovimiento],
       };
     });
 
     this.actualizarAlumnos(alumnosActualizados);
+
+    return {
+      ok: true,
+      mensaje: 'Cambio de estatus registrado correctamente.',
+    };
   }
 
   reiniciarDatos(): void {
