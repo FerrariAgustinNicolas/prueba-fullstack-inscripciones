@@ -1,1 +1,63 @@
-<p>registro-alumno works!</p>
+<section class="registro-section">
+  <h2>Registrar nuevo alumno</h2>
+
+  <form class="registro-form" [formGroup]="registroForm" (ngSubmit)="registrarAlumno()">
+    <div class="form-field">
+      <label for="nombre">Nombre</label>
+      <input
+        id="nombre"
+        type="text"
+        formControlName="nombre"
+        placeholder="Ej. Juan Pérez"
+      />
+      <small *ngIf="campoInvalido('nombre')">
+        El nombre es obligatorio y debe tener al menos 3 caracteres.
+      </small>
+    </div>
+
+    <div class="form-field">
+      <label for="empresa">Empresa</label>
+      <input
+        id="empresa"
+        type="text"
+        formControlName="empresa"
+        placeholder="Ej. Soriana"
+      />
+      <small *ngIf="campoInvalido('empresa')">
+        La empresa es obligatoria.
+      </small>
+    </div>
+
+    <div class="form-field">
+      <label for="programaId">Programa</label>
+      <select id="programaId" formControlName="programaId">
+        <option value="">Seleccionar programa</option>
+        <option
+          *ngFor="let programa of programas$ | async"
+          [value]="programa.id"
+        >
+          {{ programa.nombre }}
+        </option>
+      </select>
+      <small *ngIf="campoInvalido('programaId')">
+        El programa es obligatorio.
+      </small>
+    </div>
+
+    <div class="form-field">
+      <label for="fechaInscripcion">Fecha de inscripción</label>
+      <input
+        id="fechaInscripcion"
+        type="date"
+        formControlName="fechaInscripcion"
+      />
+      <small *ngIf="campoInvalido('fechaInscripcion')">
+        La fecha de inscripción es obligatoria.
+      </small>
+    </div>
+
+    <button type="submit">
+      Registrar alumno
+    </button>
+  </form>
+</section>
