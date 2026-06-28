@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 
-import { Alumno, EstatusAlumno } from '../../../models';
+import { Alumno, EstatusAlumno, HistorialEstatus } from '../../../models';
 import { AlumnoService } from '../../../services/alumno.service';
 
 @Component({
@@ -16,6 +16,8 @@ export class CambioEstatus {
   form: FormGroup;
 
   alumnoSeleccionado?: Alumno;
+  historialSeleccionado: HistorialEstatus[] = [];
+
   mensajeExito = '';
   mensajeError = '';
 
@@ -50,10 +52,11 @@ export class CambioEstatus {
 
     if (!alumnoId) {
       this.alumnoSeleccionado = undefined;
+      this.historialSeleccionado = [];
       return;
     }
 
-    this.alumnoSeleccionado = this.alumnoService.obtenerAlumnoPorId(alumnoId);
+    this.actualizarAlumnoSeleccionado(alumnoId);
 
     this.form.patchValue({
       nuevoEstatus: '',
@@ -96,7 +99,7 @@ export class CambioEstatus {
       motivo: '',
     });
 
-    this.alumnoSeleccionado = this.alumnoService.obtenerAlumnoPorId(alumnoId);
+    this.actualizarAlumnoSeleccionado(alumnoId);
 
     this.form.markAsPristine();
     this.form.markAsUntouched();
@@ -116,8 +119,24 @@ export class CambioEstatus {
     return etiquetas[estatus];
   }
 
+  obtenerEtiquetaEstatusAnterior(estatus: EstatusAlumno | null): string {
+    if (!estatus) {
+      return 'Sin estatus anterior';
+    }
+
+    return this.obtenerEtiquetaEstatus(estatus);
+  }
+
   campoInvalido(nombreCampo: 'alumnoId' | 'nuevoEstatus' | 'motivo'): boolean {
     const campo = this.form.get(nombreCampo);
     return !!campo && campo.invalid && (campo.dirty || campo.touched);
+  }
+
+  private actualizarAlumnoSeleccionado(alumnoId: number): void {
+    this.alumnoSeleccionado = this.alumnoService.obtenerAlumnoPorId(alumnoId);
+
+    this.historialSeleccionado = [
+      ...(this.alumnoSeleccionado?.historial ?? []),
+    ].reverse();
   }
 }

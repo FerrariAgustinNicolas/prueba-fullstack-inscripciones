@@ -85,4 +85,44 @@
       {{ mensajeError }}
     </p>
   </form>
+
+  <section class="historial" *ngIf="alumnoSeleccionado">
+    <h3>Historial de cambios</h3>
+
+    <p class="descripcion-historial">
+      Movimientos registrados para {{ alumnoSeleccionado.nombre }}.
+    </p>
+
+    <div class="tabla-contenedor" *ngIf="historialSeleccionado.length > 0; else sinHistorial">
+      <table class="tabla-historial">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Estatus anterior</th>
+            <th>Estatus nuevo</th>
+            <th>Motivo</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let movimiento of historialSeleccionado">
+            <td>{{ movimiento.fechaCambio }}</td>
+            <td>
+              {{ obtenerEtiquetaEstatusAnterior(movimiento.estatusAnterior) }}
+            </td>
+            <td>
+              {{ obtenerEtiquetaEstatus(movimiento.estatusNuevo) }}
+            </td>
+            <td>{{ movimiento.motivo }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ng-template #sinHistorial>
+      <p class="sin-historial">
+        El alumno todavía no tiene movimientos registrados.
+      </p>
+    </ng-template>
+  </section>
 </section>

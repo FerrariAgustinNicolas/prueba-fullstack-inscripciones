@@ -83,3 +83,46 @@
   color: #dc2626;
   font-weight: 600;
 }
+
+.historial {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.historial h3 {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+
+.descripcion-historial {
+  margin: 0 0 16px;
+  color: #6b7280;
+}
+
+.tabla-contenedor {
+  overflow-x: auto;
+}
+
+.tabla-historial {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabla-historial th,
+.tabla-historial td {
+  padding: 12px;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+  vertical-align: top;
+}
+
+.tabla-historial th {
+  background-color: #f9fafb;
+  font-weight: 700;
+}
+
+.sin-historial {
+  margin: 0;
+  color: #6b7280;
+}
