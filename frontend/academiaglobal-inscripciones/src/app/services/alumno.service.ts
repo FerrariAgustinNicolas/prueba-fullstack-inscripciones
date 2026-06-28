@@ -1,0 +1,148 @@
+import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
+import {
+  Alumno,
+  EstatusAlumno,
+  HistorialEstatus,
+  Programa,
+} from '../models';
+import { ALUMNOS_MOCK, PROGRAMAS_MOCK } from '../data/mock-data';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class AlumnoService {
+  private readonly alumnosStorageKey = 'alumnos';
+  private readonly programasStorageKey = 'programas';
+
+  private readonly alumnosSubject = new BehaviorSubject<Alumno[]>(
+    this.obtenerAlumnosIniciales()
+  );
+
+  private readonly programasSubject = new BehaviorSubject<Programa[]>(
+    this.obtenerProgramasIniciales()
+  );
+
+  alumnos$ = this.alumnosSubject.asObservable();
+  programas$ = this.programasSubject.asObservable();
+
+  obtenerAlumnos(): Alumno[] {
+    return this.alumnosSubject.value;
+  }
+
+  obtenerProgramas(): Programa[] {
+    return this.programasSubject.value;
+  }
+
+  agregarAlumno(alumno: Omit<Alumno, 'id' | 'estatusActual' | 'historial'>): void {
+    const alumnosActuales = this.alumnosSubject.value;
+    const nuevoId = this.generarNuevoId(alumnosActuales);
+
+    const nuevoAlumno: Alumno = {
+      ...alumno,
+      id: nuevoId,
+      estatusActual: 'inscrito',
+      historial: [
+        {
+          id: Date.now(),
+          alumnoId: nuevoId,
+          estatusAnterior: null,
+          estatusNuevo: 'inscrito',
+          fechaCambio: new Date().toISOString().split('T')[0],
+          motivo: 'Registro inicial del alumno',
+        },
+      ],
+    };
+
+    const alumnosActualizados = [...alumnosActuales, nuevoAlumno];
+    this.actualizarAlumnos(alumnosActualizados);
+  }
+
+  cambiarEstatus(
+    alumnoId: number,
+    nuevoEstatus: EstatusAlumno,
+    motivo: string
+  ): void {
+    const alumnosActualizados = this.alumnosSubject.value.map((alumno) => {
+      if (alumno.id !== alumnoId) {
+        return alumno;
+      }
+
+      if (alumno.estatusActual === nuevoEstatus) {
+        return alumno;
+      }
+
+      const nuevoMovimiento: HistorialEstatus = {
+        id: Date.now(),
+        alumnoId: alumno.id,
+        estatusAnterior: alumno.estatusActual,
+        estatusNuevo: nuevoEstatus,
+        fechaCambio: new Date().toISOString().split('T')[0],
+        motivo,
+      };
+
+      return {
+        ...alumno,
+        estatusActual: nuevoEstatus,
+        historial: [...alumno.historial, nuevoMovimiento],
+      };
+    });
+
+    this.actualizarAlumnos(alumnosActualizados);
+  }
+
+  reiniciarDatos(): void {
+    localStorage.removeItem(this.alumnosStorageKey);
+    localStorage.removeItem(this.programasStorageKey);
+
+    this.alumnosSubject.next(ALUMNOS_MOCK);
+    this.programasSubject.next(PROGRAMAS_MOCK);
+
+    this.guardarEnStorage();
+  }
+
+  private actualizarAlumnos(alumnos: Alumno[]): void {
+    this.alumnosSubject.next(alumnos);
+    this.guardarEnStorage();
+  }
+
+  private obtenerAlumnosIniciales(): Alumno[] {
+    const alumnosGuardados = localStorage.getItem(this.alumnosStorageKey);
+
+    if (!alumnosGuardados) {
+      return ALUMNOS_MOCK;
+    }
+
+    return JSON.parse(alumnosGuardados) as Alumno[];
+  }
+
+  private obtenerProgramasIniciales(): Programa[] {
+    const programasGuardados = localStorage.getItem(this.programasStorageKey);
+
+    if (!programasGuardados) {
+      return PROGRAMAS_MOCK;
+    }
+
+    return JSON.parse(programasGuardados) as Programa[];
+  }
+
+  private guardarEnStorage(): void {
+    localStorage.setItem(
+      this.alumnosStorageKey,
+      JSON.stringify(this.alumnosSubject.value)
+    );
+
+    localStorage.setItem(
+      this.programasStorageKey,
+      JSON.stringify(this.programasSubject.value)
+    );
+  }
+
+  private generarNuevoId(alumnos: Alumno[]): number {
+    if (alumnos.length === 0) {
+      return 1;
+    }
+
+    return Math.max(...alumnos.map((alumno) => alumno.id)) + 1;
+  }
+}
