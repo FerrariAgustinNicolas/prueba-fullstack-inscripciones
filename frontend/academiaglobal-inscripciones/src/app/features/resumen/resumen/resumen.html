@@ -1,45 +1,61 @@
-<section class="resumen-section" *ngIf="resumen$ | async as resumen">
+<section class="resumen-section card p-4 my-4" *ngIf="resumen$ | async as resumen">
   <h2>Resumen de inscripciones</h2>
 
-  <div class="cards-grid">
-    <article class="summary-card">
-      <span class="card-label">Total alumnos</span>
-      <strong>{{ resumen.total }}</strong>
-    </article>
+  <div class="row g-3">
+    <div class="col-12 col-sm-6 col-lg-3">
+      <article class="summary-card card h-100 p-3">
+        <span class="card-label text-muted">Total alumnos</span>
+        <strong>{{ resumen.total }}</strong>
+      </article>
+    </div>
 
-    <article class="summary-card">
-      <span class="card-label">Activos</span>
-      <strong>{{ resumen.activos }}</strong>
-    </article>
+    <div class="col-12 col-sm-6 col-lg-3">
+      <article class="summary-card card h-100 p-3">
+        <span class="card-label text-muted">Activos</span>
+        <strong>{{ resumen.activos }}</strong>
+      </article>
+    </div>
 
-    <article class="summary-card">
-      <span class="card-label">Baja empresa</span>
-      <strong>{{ resumen.bajasEmpresa }}</strong>
-    </article>
+    <div class="col-12 col-sm-6 col-lg-3">
+      <article class="summary-card card h-100 p-3">
+        <span class="card-label text-muted">Baja empresa</span>
+        <strong>{{ resumen.bajasEmpresa }}</strong>
+      </article>
+    </div>
 
-    <article class="summary-card">
-      <span class="card-label">Baja programa</span>
-      <strong>{{ resumen.bajasPrograma }}</strong>
-    </article>
+    <div class="col-12 col-sm-6 col-lg-3">
+      <article class="summary-card card h-100 p-3">
+        <span class="card-label text-muted">Baja programa</span>
+        <strong>{{ resumen.bajasPrograma }}</strong>
+      </article>
+    </div>
 
-    <article class="summary-card">
-      <span class="card-label">Suspendidos</span>
-      <strong>{{ resumen.suspendidos }}</strong>
-    </article>
+    <div class="col-12 col-sm-6 col-lg-3">
+      <article class="summary-card card h-100 p-3">
+        <span class="card-label text-muted">Suspendidos</span>
+        <strong>{{ resumen.suspendidos }}</strong>
+      </article>
+    </div>
 
-    <article class="summary-card">
-      <span class="card-label">Inscritos</span>
-      <strong>{{ resumen.inscritos }}</strong>
-    </article>
+    <div class="col-12 col-sm-6 col-lg-3">
+      <article class="summary-card card h-100 p-3">
+        <span class="card-label text-muted">Inscritos</span>
+        <strong>{{ resumen.inscritos }}</strong>
+      </article>
+    </div>
 
-    <article class="summary-card">
-      <span class="card-label">Reingresos</span>
-      <strong>{{ resumen.reingresos }}</strong>
-    </article>
+    <div class="col-12 col-sm-6 col-lg-3">
+      <article class="summary-card card h-100 p-3">
+        <span class="card-label text-muted">Reingresos</span>
+        <strong>{{ resumen.reingresos }}</strong>
+      </article>
+    </div>
 
-    <article class="summary-card">
-      <span class="card-label">Egresados</span>
-      <strong>{{ resumen.egresados }}</strong>
-    </article>
+    <div class="col-12 col-sm-6 col-lg-3">
+      <article class="summary-card card h-100 p-3">
+        <span class="card-label text-muted">Egresados</span>
+        <strong>{{ resumen.egresados }}</strong>
+      </article>
+    </div>
   </div>
 </section>

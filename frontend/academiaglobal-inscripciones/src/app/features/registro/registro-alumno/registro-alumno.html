@@ -1,12 +1,13 @@
-<section class="registro-section">
+<section class="registro-section card p-4 my-4">
   <h2>Registrar nuevo alumno</h2>
 
-  <form class="registro-form" [formGroup]="registroForm" (ngSubmit)="registrarAlumno()">
-    <div class="form-field">
-      <label for="nombre">Nombre</label>
+  <form class="row g-3" [formGroup]="registroForm" (ngSubmit)="registrarAlumno()">
+    <div class="form-field col-12 col-md-6">
+      <label for="nombre" class="form-label">Nombre</label>
       <input
         id="nombre"
         type="text"
+        class="form-control"
         formControlName="nombre"
         placeholder="Ej. Juan Pérez"
       />
@@ -15,11 +16,12 @@
       </small>
     </div>
 
-    <div class="form-field">
-      <label for="empresa">Empresa</label>
+    <div class="form-field col-12 col-md-6">
+      <label for="empresa" class="form-label">Empresa</label>
       <input
         id="empresa"
         type="text"
+        class="form-control"
         formControlName="empresa"
         placeholder="Ej. Soriana"
       />
@@ -28,9 +30,13 @@
       </small>
     </div>
 
-    <div class="form-field">
-      <label for="programaId">Programa</label>
-      <select id="programaId" formControlName="programaId">
+    <div class="form-field col-12 col-md-6">
+      <label for="programaId" class="form-label">Programa</label>
+      <select
+        id="programaId"
+        class="form-select"
+        formControlName="programaId"
+      >
         <option value="">Seleccionar programa</option>
         <option
           *ngFor="let programa of programas$ | async"
@@ -44,11 +50,12 @@
       </small>
     </div>
 
-    <div class="form-field">
-      <label for="fechaInscripcion">Fecha de inscripción</label>
+    <div class="form-field col-12 col-md-6">
+      <label for="fechaInscripcion" class="form-label">Fecha de inscripción</label>
       <input
         id="fechaInscripcion"
         type="date"
+        class="form-control"
         formControlName="fechaInscripcion"
       />
       <small *ngIf="campoInvalido('fechaInscripcion')">
@@ -56,8 +63,10 @@
       </small>
     </div>
 
-    <button type="submit">
-      Registrar alumno
+    <div class="col-12">
+    <button type="submit" class="btn btn-primary">
+        Registrar alumno
     </button>
+    </div>
   </form>
 </section>

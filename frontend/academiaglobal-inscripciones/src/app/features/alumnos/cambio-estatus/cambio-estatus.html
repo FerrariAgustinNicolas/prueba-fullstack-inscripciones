@@ -1,16 +1,17 @@
-<section class="panel-cambio-estatus">
+<section class="panel-cambio-estatus card p-4 mt-4">
   <h2>Cambio de estatus</h2>
 
   <p class="descripcion">
     Seleccioná un alumno, indicá el nuevo estatus y registrá el motivo del cambio.
   </p>
 
-  <form [formGroup]="form" (ngSubmit)="registrarCambio()" class="form-cambio">
-    <div class="campo">
-      <label for="alumnoId">Alumno</label>
+  <form [formGroup]="form" (ngSubmit)="registrarCambio()" class="row g-3">
+    <div class="campo col-12">
+      <label for="alumnoId" class="form-label">Alumno</label>
 
       <select
         id="alumnoId"
+        class="form-select"
         formControlName="alumnoId"
         (change)="onSeleccionarAlumno()"
       >
@@ -29,17 +30,21 @@
       </small>
     </div>
 
-    <div class="estatus-actual" *ngIf="alumnoSeleccionado">
+    <div class="estatus-actual alert alert-light border mb-0 col-12" *ngIf="alumnoSeleccionado">
       <span>Estatus actual:</span>
       <strong>
         {{ obtenerEtiquetaEstatus(alumnoSeleccionado.estatusActual) }}
       </strong>
     </div>
 
-    <div class="campo">
-      <label for="nuevoEstatus">Nuevo estatus</label>
+    <div class="campo col-12">
+      <label for="nuevoEstatus" class="form-label">Nuevo estatus</label>
 
-      <select id="nuevoEstatus" formControlName="nuevoEstatus">
+      <select
+        id="nuevoEstatus"
+        class="form-select"
+        formControlName="nuevoEstatus"
+      >
         <option value="">Seleccionar nuevo estatus</option>
 
         <option
@@ -56,11 +61,12 @@
       </small>
     </div>
 
-    <div class="campo">
-      <label for="motivo">Motivo</label>
+    <div class="campo col-12">
+      <label for="motivo" class="form-label">Motivo</label>
 
       <textarea
         id="motivo"
+        class="form-control"
         rows="3"
         formControlName="motivo"
         placeholder="Ejemplo: El alumno retomó el cursado luego de regularizar su situación."
@@ -71,30 +77,37 @@
       </small>
     </div>
 
-    <div class="acciones">
-      <button type="submit">
+    <div class="acciones col-12">
+      <button type="submit" class="btn btn-primary">
         Registrar cambio
       </button>
     </div>
 
-    <p class="mensaje-exito" *ngIf="mensajeExito">
-      {{ mensajeExito }}
-    </p>
+    <div class="col-12" *ngIf="mensajeExito">
+      <p class="mensaje-exito alert alert-success mb-0">
+        {{ mensajeExito }}
+      </p>
+    </div>
 
-    <p class="mensaje-error" *ngIf="mensajeError">
-      {{ mensajeError }}
-    </p>
+    <div class="col-12" *ngIf="mensajeError">
+      <p class="mensaje-error alert alert-danger mb-0">
+        {{ mensajeError }}
+      </p>
+    </div>
   </form>
 
-  <section class="historial" *ngIf="alumnoSeleccionado">
+  <section class="historial mt-4" *ngIf="alumnoSeleccionado">
     <h3>Historial de cambios</h3>
 
     <p class="descripcion-historial">
       Movimientos registrados para {{ alumnoSeleccionado.nombre }}.
     </p>
 
-    <div class="tabla-contenedor" *ngIf="historialSeleccionado.length > 0; else sinHistorial">
-      <table class="tabla-historial">
+    <div
+      class="tabla-contenedor table-responsive"
+      *ngIf="historialSeleccionado.length > 0; else sinHistorial"
+    >
+      <table class="tabla-historial table table-sm table-hover align-middle">
         <thead>
           <tr>
             <th>Fecha</th>
@@ -120,7 +133,7 @@
     </div>
 
     <ng-template #sinHistorial>
-      <p class="sin-historial">
+      <p class="sin-historial alert alert-light border mb-0">
         El alumno todavía no tiene movimientos registrados.
       </p>
     </ng-template>

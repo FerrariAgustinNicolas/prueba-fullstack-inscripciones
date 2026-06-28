@@ -1,47 +1,55 @@
-<section class="alumnos-section">
-  <div class="section-header">
+<section class="alumnos-section card p-4 my-4">
+  <div class="section-header d-flex flex-column flex-md-row justify-content-between gap-3 mb-3">
     <div>
       <h2>Alumnos</h2>
       <p>Listado de alumnos con su programa y estatus actual.</p>
     </div>
 
-    <button type="button" class="secondary-button" (click)="limpiarFiltros()">
-      Limpiar filtros
-    </button>
+    <div>
+      <button
+        type="button"
+        class="secondary-button btn btn-outline-secondary"
+        (click)="limpiarFiltros()"
+      >
+        Limpiar filtros
+      </button>
+    </div>
   </div>
 
-  <div class="filters">
-    <div class="filter-field">
-      <label for="filtroEstatus">Filtrar por estatus</label>
-        <select
+  <div class="filters row g-3 mb-3">
+    <div class="filter-field col-12 col-md-6">
+      <label for="filtroEstatus" class="form-label">Filtrar por estatus</label>
+      <select
         id="filtroEstatus"
+        class="form-select"
         [ngModel]="filtroEstatus"
         (ngModelChange)="actualizarFiltroEstatus($event)"
-        >
+      >
         <option value="">Todos</option>
         <option *ngFor="let estatus of estatusDisponibles" [value]="estatus">
-            {{ formatearEstatus(estatus) }}
+          {{ formatearEstatus(estatus) }}
         </option>
-        </select>
+      </select>
     </div>
 
-    <div class="filter-field">
-      <label for="filtroPrograma">Filtrar por programa</label>
-        <select
+    <div class="filter-field col-12 col-md-6">
+      <label for="filtroPrograma" class="form-label">Filtrar por programa</label>
+      <select
         id="filtroPrograma"
+        class="form-select"
         [ngModel]="filtroPrograma"
         (ngModelChange)="actualizarFiltroPrograma($event)"
-        >
+      >
         <option value="">Todos</option>
         <option *ngFor="let programa of programas$ | async" [value]="programa.id">
-            {{ programa.nombre }}
+          {{ programa.nombre }}
         </option>
-        </select>
+      </select>
     </div>
   </div>
 
-  <div class="table-wrapper">
-    <table>
+  <div class="table-wrapper table-responsive">
+    <table class="table table-hover align-middle">
       <thead>
         <tr>
           <th>Alumno</th>
@@ -58,7 +66,7 @@
           <td>{{ alumno.empresa }}</td>
           <td>{{ alumno.programa }}</td>
           <td>
-            <span class="status-badge">
+            <span class="status-badge badge bg-light text-dark">
               {{ formatearEstatus(alumno.estatusActual) }}
             </span>
           </td>
@@ -67,5 +75,6 @@
       </tbody>
     </table>
   </div>
+
   <app-cambio-estatus></app-cambio-estatus>
 </section>
