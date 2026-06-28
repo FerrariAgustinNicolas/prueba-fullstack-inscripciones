@@ -188,3 +188,253 @@ SELECT
 FROM staging_alumnos_csv s
 INNER JOIN programas p
     ON p.nombre_programa = TRIM(s.programa);
+
+-- =====================================================
+-- 5. Carga de historial plausible de cambios de estatus
+-- =====================================================
+
+-- El CSV contiene únicamente el estatus actual de cada alumno.
+-- Para poder analizar cambios en el tiempo, se generan movimientos plausibles.
+-- Las fechas se calculan con CURDATE() para que algunas consultas, como
+-- "cambios en los últimos 30 días", sigan funcionando al momento de evaluar.
+
+-- Alumno 1001: caso de reingreso desde baja_empresa hacia activo.
+-- Estatus actual en inscripciones: activo.
+INSERT INTO historial_estatus (
+    id_inscripcion,
+    estatus_anterior,
+    estatus_nuevo,
+    fecha_cambio,
+    motivo
+)
+SELECT
+    i.id_inscripcion,
+    'inscrito',
+    'activo',
+    DATE_SUB(CURDATE(), INTERVAL 120 DAY),
+    'Inicio regular del programa'
+FROM inscripciones i
+WHERE i.id_alumno = 1001;
+
+INSERT INTO historial_estatus (
+    id_inscripcion,
+    estatus_anterior,
+    estatus_nuevo,
+    fecha_cambio,
+    motivo
+)
+SELECT
+    i.id_inscripcion,
+    'activo',
+    'baja_empresa',
+    DATE_SUB(CURDATE(), INTERVAL 25 DAY),
+    'Cambio laboral reportado por la empresa'
+FROM inscripciones i
+WHERE i.id_alumno = 1001;
+
+INSERT INTO historial_estatus (
+    id_inscripcion,
+    estatus_anterior,
+    estatus_nuevo,
+    fecha_cambio,
+    motivo
+)
+SELECT
+    i.id_inscripcion,
+    'baja_empresa',
+    'activo',
+    DATE_SUB(CURDATE(), INTERVAL 5 DAY),
+    'Reingreso autorizado por reincorporación laboral'
+FROM inscripciones i
+WHERE i.id_alumno = 1001;
+
+
+-- Alumno 1007: baja por empresa.
+-- Estatus actual en inscripciones: baja_empresa.
+INSERT INTO historial_estatus (
+    id_inscripcion,
+    estatus_anterior,
+    estatus_nuevo,
+    fecha_cambio,
+    motivo
+)
+SELECT
+    i.id_inscripcion,
+    'inscrito',
+    'activo',
+    DATE_SUB(CURDATE(), INTERVAL 90 DAY),
+    'Activación inicial de inscripción'
+FROM inscripciones i
+WHERE i.id_alumno = 1007;
+
+INSERT INTO historial_estatus (
+    id_inscripcion,
+    estatus_anterior,
+    estatus_nuevo,
+    fecha_cambio,
+    motivo
+)
+SELECT
+    i.id_inscripcion,
+    'activo',
+    'baja_empresa',
+    DATE_SUB(CURDATE(), INTERVAL 12 DAY),
+    'Finalización de relación laboral con la empresa'
+FROM inscripciones i
+WHERE i.id_alumno = 1007;
+
+
+-- Alumno 1005: baja del programa.
+-- Estatus actual en inscripciones: baja_programa.
+INSERT INTO historial_estatus (
+    id_inscripcion,
+    estatus_anterior,
+    estatus_nuevo,
+    fecha_cambio,
+    motivo
+)
+SELECT
+    i.id_inscripcion,
+    'inscrito',
+    'activo',
+    DATE_SUB(CURDATE(), INTERVAL 180 DAY),
+    'Inicio de cursada'
+FROM inscripciones i
+WHERE i.id_alumno = 1005;
+
+INSERT INTO historial_estatus (
+    id_inscripcion,
+    estatus_anterior,
+    estatus_nuevo,
+    fecha_cambio,
+    motivo
+)
+SELECT
+    i.id_inscripcion,
+    'activo',
+    'baja_programa',
+    DATE_SUB(CURDATE(), INTERVAL 20 DAY),
+    'Baja voluntaria solicitada por el alumno'
+FROM inscripciones i
+WHERE i.id_alumno = 1005;
+
+
+-- Alumno 1002: suspensión temporal.
+-- Estatus actual en inscripciones: suspendido.
+INSERT INTO historial_estatus (
+    id_inscripcion,
+    estatus_anterior,
+    estatus_nuevo,
+    fecha_cambio,
+    motivo
+)
+SELECT
+    i.id_inscripcion,
+    'inscrito',
+    'activo',
+    DATE_SUB(CURDATE(), INTERVAL 75 DAY),
+    'Alumno habilitado para cursar'
+FROM inscripciones i
+WHERE i.id_alumno = 1002;
+
+INSERT INTO historial_estatus (
+    id_inscripcion,
+    estatus_anterior,
+    estatus_nuevo,
+    fecha_cambio,
+    motivo
+)
+SELECT
+    i.id_inscripcion,
+    'activo',
+    'suspendido',
+    DATE_SUB(CURDATE(), INTERVAL 10 DAY),
+    'Suspensión temporal por documentación pendiente'
+FROM inscripciones i
+WHERE i.id_alumno = 1002;
+
+
+-- Alumno 1003: egreso.
+-- Estatus actual en inscripciones: egresado.
+INSERT INTO historial_estatus (
+    id_inscripcion,
+    estatus_anterior,
+    estatus_nuevo,
+    fecha_cambio,
+    motivo
+)
+SELECT
+    i.id_inscripcion,
+    'inscrito',
+    'activo',
+    DATE_SUB(CURDATE(), INTERVAL 300 DAY),
+    'Inicio del trayecto académico'
+FROM inscripciones i
+WHERE i.id_alumno = 1003;
+
+INSERT INTO historial_estatus (
+    id_inscripcion,
+    estatus_anterior,
+    estatus_nuevo,
+    fecha_cambio,
+    motivo
+)
+SELECT
+    i.id_inscripcion,
+    'activo',
+    'egresado',
+    DATE_SUB(CURDATE(), INTERVAL 40 DAY),
+    'Finalización satisfactoria del programa'
+FROM inscripciones i
+WHERE i.id_alumno = 1003;
+
+
+-- Alumno 1024: caso con estatus actual reingreso.
+-- Estatus actual en inscripciones: reingreso.
+INSERT INTO historial_estatus (
+    id_inscripcion,
+    estatus_anterior,
+    estatus_nuevo,
+    fecha_cambio,
+    motivo
+)
+SELECT
+    i.id_inscripcion,
+    'inscrito',
+    'activo',
+    DATE_SUB(CURDATE(), INTERVAL 200 DAY),
+    'Activación inicial de inscripción'
+FROM inscripciones i
+WHERE i.id_alumno = 1024;
+
+INSERT INTO historial_estatus (
+    id_inscripcion,
+    estatus_anterior,
+    estatus_nuevo,
+    fecha_cambio,
+    motivo
+)
+SELECT
+    i.id_inscripcion,
+    'activo',
+    'baja_empresa',
+    DATE_SUB(CURDATE(), INTERVAL 60 DAY),
+    'Pausa por cambio de condiciones laborales'
+FROM inscripciones i
+WHERE i.id_alumno = 1024;
+
+INSERT INTO historial_estatus (
+    id_inscripcion,
+    estatus_anterior,
+    estatus_nuevo,
+    fecha_cambio,
+    motivo
+)
+SELECT
+    i.id_inscripcion,
+    'baja_empresa',
+    'reingreso',
+    DATE_SUB(CURDATE(), INTERVAL 18 DAY),
+    'Reingreso al programa autorizado por coordinación'
+FROM inscripciones i
+WHERE i.id_alumno = 1024;
