@@ -438,3 +438,145 @@ SELECT
     'Reingreso al programa autorizado por coordinación'
 FROM inscripciones i
 WHERE i.id_alumno = 1024;
+
+-- =====================================================
+-- 6. Consultas requeridas
+-- =====================================================
+
+-- -----------------------------------------------------
+-- 6.1 Alumnos activos por programa
+-- -----------------------------------------------------
+-- Cuenta la cantidad de alumnos cuyo estatus actual es 'activo',
+-- agrupados por programa académico.
+
+SELECT
+    p.nombre_programa,
+    COUNT(i.id_inscripcion) AS total_alumnos_activos
+FROM inscripciones i
+INNER JOIN programas p
+    ON i.id_programa = p.id_programa
+WHERE i.estatus_actual = 'activo'
+GROUP BY p.nombre_programa
+ORDER BY total_alumnos_activos DESC;
+
+
+-- -----------------------------------------------------
+-- 6.2 Alumnos que tuvieron al menos un cambio de estatus
+--     en los últimos 30 días
+-- -----------------------------------------------------
+-- Usa la tabla historial_estatus, ya que los cambios de estado
+-- se registran como eventos históricos.
+
+SELECT DISTINCT
+    a.id_alumno,
+    a.nombre,
+    a.empresa,
+    p.nombre_programa,
+    h.estatus_anterior,
+    h.estatus_nuevo,
+    h.fecha_cambio,
+    h.motivo
+FROM historial_estatus h
+INNER JOIN inscripciones i
+    ON h.id_inscripcion = i.id_inscripcion
+INNER JOIN alumnos a
+    ON i.id_alumno = a.id_alumno
+INNER JOIN programas p
+    ON i.id_programa = p.id_programa
+WHERE h.fecha_cambio >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+ORDER BY h.fecha_cambio DESC;
+
+
+-- -----------------------------------------------------
+-- 6.3 Tasa de baja por programa
+-- -----------------------------------------------------
+-- Fórmula:
+-- tasa_baja = alumnos con estatus actual de baja / total de inscripciones
+--
+-- Se consideran bajas los estatus:
+-- - baja_empresa
+-- - baja_programa
+
+SELECT
+    p.nombre_programa,
+    COUNT(i.id_inscripcion) AS total_inscripciones,
+    SUM(
+        CASE
+            WHEN i.estatus_actual IN ('baja_empresa', 'baja_programa')
+            THEN 1
+            ELSE 0
+        END
+    ) AS total_bajas,
+    ROUND(
+        SUM(
+            CASE
+                WHEN i.estatus_actual IN ('baja_empresa', 'baja_programa')
+                THEN 1
+                ELSE 0
+            END
+        ) / COUNT(i.id_inscripcion) * 100,
+        2
+    ) AS tasa_baja_porcentaje
+FROM inscripciones i
+INNER JOIN programas p
+    ON i.id_programa = p.id_programa
+GROUP BY p.nombre_programa
+ORDER BY tasa_baja_porcentaje DESC;
+
+
+-- -----------------------------------------------------
+-- 6.4 Historial completo de un alumno específico
+-- -----------------------------------------------------
+-- JOIN de las 4 tablas principales:
+-- alumnos, inscripciones, programas e historial_estatus.
+--
+-- Para esta consulta se utiliza como ejemplo el alumno con id_alumno = 1001.
+-- Este valor puede reemplazarse por cualquier otro id_alumno existente.
+
+SELECT
+    a.id_alumno,
+    a.nombre,
+    a.empresa,
+    a.fecha_ingreso,
+    p.nombre_programa,
+    i.estatus_actual,
+    i.fecha_inscripcion,
+    h.estatus_anterior,
+    h.estatus_nuevo,
+    h.fecha_cambio,
+    h.motivo
+FROM alumnos a
+INNER JOIN inscripciones i
+    ON a.id_alumno = i.id_alumno
+INNER JOIN programas p
+    ON i.id_programa = p.id_programa
+LEFT JOIN historial_estatus h
+    ON i.id_inscripcion = h.id_inscripcion
+WHERE a.id_alumno = 1001
+ORDER BY h.fecha_cambio ASC;
+
+-- -----------------------------------------------------
+-- 6.5 Alumnos que pasaron de baja_empresa a activo
+-- -----------------------------------------------------
+-- Identifica reinscripciones o reincorporaciones donde el alumno
+-- pasó desde una baja por empresa hacia el estatus activo.
+
+SELECT
+    a.id_alumno,
+    a.nombre,
+    a.empresa,
+    p.nombre_programa,
+    h.estatus_anterior,
+    h.estatus_nuevo,
+    h.fecha_cambio,
+    h.motivo
+FROM historial_estatus h
+INNER JOIN inscripciones i
+    ON h.id_inscripcion = i.id_inscripcion
+INNER JOIN alumnos a
+    ON i.id_alumno = a.id_alumno
+INNER JOIN programas p
+    ON i.id_programa = p.id_programa
+WHERE h.estatus_anterior = 'baja_empresa'
+  AND h.estatus_nuevo = 'activo'
+ORDER BY h.fecha_cambio DESC;
