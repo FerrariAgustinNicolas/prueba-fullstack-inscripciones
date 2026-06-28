@@ -1,1 +1,70 @@
-<p>alumnos-listado works!</p>
+<section class="alumnos-section">
+  <div class="section-header">
+    <div>
+      <h2>Alumnos</h2>
+      <p>Listado de alumnos con su programa y estatus actual.</p>
+    </div>
+
+    <button type="button" class="secondary-button" (click)="limpiarFiltros()">
+      Limpiar filtros
+    </button>
+  </div>
+
+  <div class="filters">
+    <div class="filter-field">
+      <label for="filtroEstatus">Filtrar por estatus</label>
+        <select
+        id="filtroEstatus"
+        [ngModel]="filtroEstatus"
+        (ngModelChange)="actualizarFiltroEstatus($event)"
+        >
+        <option value="">Todos</option>
+        <option *ngFor="let estatus of estatusDisponibles" [value]="estatus">
+            {{ formatearEstatus(estatus) }}
+        </option>
+        </select>
+    </div>
+
+    <div class="filter-field">
+      <label for="filtroPrograma">Filtrar por programa</label>
+        <select
+        id="filtroPrograma"
+        [ngModel]="filtroPrograma"
+        (ngModelChange)="actualizarFiltroPrograma($event)"
+        >
+        <option value="">Todos</option>
+        <option *ngFor="let programa of programas$ | async" [value]="programa.id">
+            {{ programa.nombre }}
+        </option>
+        </select>
+    </div>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Alumno</th>
+          <th>Empresa</th>
+          <th>Programa</th>
+          <th>Estatus actual</th>
+          <th>Fecha inscripción</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let alumno of alumnosFiltrados$ | async">
+          <td>{{ alumno.nombre }}</td>
+          <td>{{ alumno.empresa }}</td>
+          <td>{{ alumno.programa }}</td>
+          <td>
+            <span class="status-badge">
+              {{ formatearEstatus(alumno.estatusActual) }}
+            </span>
+          </td>
+          <td>{{ alumno.fechaInscripcion }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
