@@ -540,7 +540,5 @@ La interfaz permite:
 * [x] Base de datos MariaDB.
 * [x] Análisis con Python/Pandas.
 * [x] Interfaz Angular.
-* [ ] Preguntas conceptuales.
+* [x] Preguntas conceptuales.
 * [x] README final con instrucciones completas.
-
-
