@@ -580,3 +580,58 @@ INNER JOIN programas p
 WHERE h.estatus_anterior = 'baja_empresa'
   AND h.estatus_nuevo = 'activo'
 ORDER BY h.fecha_cambio DESC;
+
+-- =====================================================
+-- 7. Propuesta de indicador de negocio
+-- =====================================================
+
+-- Nombre del indicador:
+-- Índice de continuidad académica por programa
+--
+-- Definición:
+-- Mide el porcentaje de alumnos que se mantienen en un estado favorable
+-- dentro de cada programa académico.
+--
+-- Fórmula:
+-- índice_continuidad =
+--     alumnos con estatus activo, inscrito, reingreso o egresado
+--     / total de inscripciones del programa * 100
+--
+-- Justificación:
+-- Este indicador permite identificar qué programas logran mantener mayor
+-- continuidad académica. Es útil para detectar programas con mayor riesgo
+-- de abandono, suspensión o baja, y permite priorizar acciones de seguimiento
+-- sobre los programas con menor continuidad.
+
+SELECT
+    p.nombre_programa,
+    COUNT(i.id_inscripcion) AS total_inscripciones,
+    SUM(
+        CASE
+            WHEN i.estatus_actual IN ('activo', 'inscrito', 'reingreso', 'egresado')
+            THEN 1
+            ELSE 0
+        END
+    ) AS alumnos_en_continuidad,
+    SUM(
+        CASE
+            WHEN i.estatus_actual IN ('baja_empresa', 'baja_programa', 'suspendido')
+            THEN 1
+            ELSE 0
+        END
+    ) AS alumnos_sin_continuidad,
+    ROUND(
+        SUM(
+            CASE
+                WHEN i.estatus_actual IN ('activo', 'inscrito', 'reingreso', 'egresado')
+                THEN 1
+                ELSE 0
+            END
+        ) / COUNT(i.id_inscripcion) * 100,
+        2
+    ) AS indice_continuidad_porcentaje
+FROM inscripciones i
+INNER JOIN programas p
+    ON i.id_programa = p.id_programa
+GROUP BY p.nombre_programa
+ORDER BY indice_continuidad_porcentaje DESC;
