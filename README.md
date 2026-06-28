@@ -39,58 +39,94 @@ prueba-fullstack-inscripciones/
 
 ## Parte 1 — Base de datos MariaDB
 
-Estado: pendiente de implementación.
+Estado: completada.
 
-Esta sección incluirá:
+Se implementó el archivo:
 
-* Creación del esquema relacional.
-* Carga de datos iniciales desde el archivo CSV.
-* Poblado de historial de cambios de estatus.
+```text
+sql/01_schema_seed_queries.sql
+```
+
+La solución incluye:
+
+* Creación de la base de datos `inscripciones_db`.
+* Creación de las tablas `alumnos`, `programas`, `inscripciones` e `historial_estatus`.
+* Relaciones mediante claves foráneas.
+* Uso de `ENUM` para representar los estatus definidos por la consigna.
+* Carga inicial de datos desde `data/alumnos_muestra.csv`.
+* Generación de movimientos plausibles de historial, ya que el CSV representa un snapshot actual.
 * Consultas SQL requeridas.
 * Propuesta de indicador de negocio.
-* Stored procedure para registrar cambios de estatus.
+* Stored procedure `sp_registrar_cambio_estatus`.
 
 ---
 
 ## Parte 2 — Análisis de datos con Python/Pandas
 
-Estado: pendiente de implementación.
+Estado: completada.
 
-Esta sección incluirá:
+Se implementó el notebook:
 
-* Conexión a MariaDB.
+```text
+python/analisis_inscripciones.ipynb
+```
+
+El análisis incluye:
+
+* Conexión a MariaDB usando `sqlalchemy` y `pymysql`.
 * Carga de tablas en DataFrames de Pandas.
-* Análisis de distribución de estatus por programa.
-* Evolución mensual de bajas y alumnos activos.
-* Cálculo de tasa de activos por programa.
+* Construcción de un DataFrame consolidado.
+* Validación de consistencia entre inscripciones y registros cargados.
+* Conversión de fechas a formato `datetime64`.
+* Distribución de estatus actual por programa.
+* Evolución mensual de altas y bajas.
+* Tasa de activos por programa.
 * Identificación del motivo de baja más frecuente.
-* Visualizaciones requeridas.
+* Visualizaciones requeridas:
+
+  * Barras apiladas de estatus por programa.
+  * Línea de altas y bajas por mes.
+* Visualización adicional de tasa de activos por programa.
+
 
 ---
 
 ## Parte 3 — Interfaz Angular
 
-Estado: pendiente de implementación.
+Estado: completada.
 
-Esta sección incluirá:
+El proyecto Angular se encuentra en:
 
-* Formulario de registro de nuevo alumno usando Reactive Forms.
+```text
+frontend/academiaglobal-inscripciones/
+```
+
+La interfaz incluye:
+
+* Formulario de registro de nuevo alumno usando `ReactiveFormsModule`.
 * Tabla de alumnos con estatus actual visible.
 * Filtros por estatus y por programa.
-* Panel o modal para registrar cambios de estatus con motivo.
+* Panel de cambio de estatus con selección de alumno, nuevo estatus y motivo.
 * Componente de resumen con conteos por estatus.
-* Estado compartido mediante un service con BehaviorSubject.
-* Persistencia inicial con mock data y/o localStorage.
+* Estado compartido mediante un service con `BehaviorSubject`.
+* Persistencia en `localStorage`.
+* Mock data inicial para trabajar sin backend.
+* Historial de cambios de estatus visible por alumno.
+* Interfaz responsive utilizando Bootstrap.
 
-La interfaz Angular se resolverá inicialmente con mock data y/o localStorage, tal como permite la consigna. Esta decisión permite cumplir primero los requisitos funcionales obligatorios. Luego, si el tiempo disponible lo permite, se evaluará reemplazar esta persistencia local por una conexión real a una API backend.
+La interfaz trabaja con mock data y `localStorage`. Se priorizó una solución funcional, simple y trazable. La conexión real a una API backend queda planteada como mejora futura.
 
 ---
 
 ## Parte 4 — Preguntas conceptuales
 
-Estado: pendiente de implementación.
+Estado: pendiente de completar.
 
 Las respuestas conceptuales estarán documentadas en:
+
+```text
+docs/preguntas_conceptuales.md
+```
 
 ---
 
@@ -443,7 +479,57 @@ El notebook realiza:
 
 ### Ejecutar Angular
 
-Pendiente.
+La Parte 3 se encuentra en:
+
+```text
+frontend/academiaglobal-inscripciones/
+```
+
+Para ejecutar la interfaz:
+
+```bash
+cd frontend/academiaglobal-inscripciones
+npm install
+ng serve
+```
+
+Luego abrir en el navegador:
+
+```text
+http://localhost:4200
+```
+
+Para verificar que el proyecto compile correctamente:
+
+```bash
+npm run build
+```
+
+---
+
+### Funcionalidades de la interfaz Angular
+
+La interfaz permite:
+
+* Visualizar un resumen de alumnos por estatus.
+* Registrar nuevos alumnos.
+* Consultar una tabla de alumnos con su empresa, programa, estatus actual y fecha de inscripción.
+* Filtrar alumnos por estatus y por programa.
+* Registrar cambios de estatus indicando un motivo.
+* Consultar el historial de cambios de estatus del alumno seleccionado.
+* Mantener los datos en `localStorage` al recargar la página.
+
+---
+
+### Decisiones de diseño Angular
+
+* Se utilizó Angular con módulos y componentes separados para mantener una estructura clara.
+* Se implementaron componentes para registro, listado de alumnos, cambio de estatus y resumen.
+* El estado compartido se maneja en `AlumnoService` mediante `BehaviorSubject`.
+* Se usó `localStorage` para persistencia local, ya que la consigna permite trabajar con mock data en memoria o almacenamiento local.
+* Se evitó agregar una API backend para no sobreingenierizar la solución dentro del alcance principal.
+* Se agregó Bootstrap para mejorar la responsividad de la interfaz.
+* Se agregó historial visible por alumno como extra deseable.
 
 ---
 
@@ -453,6 +539,8 @@ Pendiente.
 * [x] Archivo CSV agregado.
 * [x] Base de datos MariaDB.
 * [x] Análisis con Python/Pandas.
-* [ ] Interfaz Angular.
+* [x] Interfaz Angular.
 * [ ] Preguntas conceptuales.
-* [ ] README final con instrucciones completas.
+* [x] README final con instrucciones completas.
+
+
