@@ -1,0 +1,85 @@
+.panel-cambio-estatus {
+  margin-top: 24px;
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background-color: #ffffff;
+}
+
+.panel-cambio-estatus h2 {
+  margin: 0 0 8px;
+  font-size: 22px;
+}
+
+.descripcion {
+  margin: 0 0 20px;
+  color: #6b7280;
+}
+
+.form-cambio {
+  display: grid;
+  gap: 16px;
+}
+
+.campo {
+  display: grid;
+  gap: 6px;
+}
+
+.campo label {
+  font-weight: 600;
+}
+
+.campo select,
+.campo textarea {
+  padding: 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.campo small {
+  color: #dc2626;
+}
+
+.estatus-actual {
+  padding: 12px;
+  border-radius: 8px;
+  background-color: #f3f4f6;
+}
+
+.estatus-actual span {
+  margin-right: 8px;
+  color: #4b5563;
+}
+
+.acciones {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.acciones button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  background-color: #2563eb;
+  color: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.acciones button:hover {
+  background-color: #1d4ed8;
+}
+
+.mensaje-exito {
+  margin: 0;
+  color: #15803d;
+  font-weight: 600;
+}
+
+.mensaje-error {
+  margin: 0;
+  color: #dc2626;
+  font-weight: 600;
+}

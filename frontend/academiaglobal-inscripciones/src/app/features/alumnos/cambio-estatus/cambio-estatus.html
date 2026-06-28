@@ -1,1 +1,88 @@
-<p>cambio-estatus works!</p>
+<section class="panel-cambio-estatus">
+  <h2>Cambio de estatus</h2>
+
+  <p class="descripcion">
+    Seleccioná un alumno, indicá el nuevo estatus y registrá el motivo del cambio.
+  </p>
+
+  <form [formGroup]="form" (ngSubmit)="registrarCambio()" class="form-cambio">
+    <div class="campo">
+      <label for="alumnoId">Alumno</label>
+
+      <select
+        id="alumnoId"
+        formControlName="alumnoId"
+        (change)="onSeleccionarAlumno()"
+      >
+        <option [ngValue]="null">Seleccionar alumno</option>
+
+        <option
+          *ngFor="let alumno of alumnos$ | async"
+          [ngValue]="alumno.id"
+        >
+          {{ alumno.nombre }} - {{ alumno.empresa }}
+        </option>
+      </select>
+
+      <small *ngIf="campoInvalido('alumnoId')">
+        Seleccioná un alumno.
+      </small>
+    </div>
+
+    <div class="estatus-actual" *ngIf="alumnoSeleccionado">
+      <span>Estatus actual:</span>
+      <strong>
+        {{ obtenerEtiquetaEstatus(alumnoSeleccionado.estatusActual) }}
+      </strong>
+    </div>
+
+    <div class="campo">
+      <label for="nuevoEstatus">Nuevo estatus</label>
+
+      <select id="nuevoEstatus" formControlName="nuevoEstatus">
+        <option value="">Seleccionar nuevo estatus</option>
+
+        <option
+          *ngFor="let estatus of estatusOpciones"
+          [ngValue]="estatus"
+          [disabled]="estatus === alumnoSeleccionado?.estatusActual"
+        >
+          {{ obtenerEtiquetaEstatus(estatus) }}
+        </option>
+      </select>
+
+      <small *ngIf="campoInvalido('nuevoEstatus')">
+        Seleccioná un nuevo estatus.
+      </small>
+    </div>
+
+    <div class="campo">
+      <label for="motivo">Motivo</label>
+
+      <textarea
+        id="motivo"
+        rows="3"
+        formControlName="motivo"
+        placeholder="Ejemplo: El alumno retomó el cursado luego de regularizar su situación."
+      ></textarea>
+
+      <small *ngIf="campoInvalido('motivo')">
+        El motivo es obligatorio y debe tener al menos 5 caracteres.
+      </small>
+    </div>
+
+    <div class="acciones">
+      <button type="submit">
+        Registrar cambio
+      </button>
+    </div>
+
+    <p class="mensaje-exito" *ngIf="mensajeExito">
+      {{ mensajeExito }}
+    </p>
+
+    <p class="mensaje-error" *ngIf="mensajeError">
+      {{ mensajeError }}
+    </p>
+  </form>
+</section>
