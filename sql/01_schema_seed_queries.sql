@@ -635,3 +635,123 @@ INNER JOIN programas p
     ON i.id_programa = p.id_programa
 GROUP BY p.nombre_programa
 ORDER BY indice_continuidad_porcentaje DESC;
+
+-- =====================================================
+-- 8. Stored Procedure
+-- =====================================================
+
+-- Stored Procedure: sp_registrar_cambio_estatus
+--
+-- Objetivo:
+-- Registrar un cambio de estatus para una inscripción existente.
+--
+-- Operación:
+-- 1. Recibe el id de la inscripción, el nuevo estatus y el motivo.
+-- 2. Valida que la inscripción exista.
+-- 3. Valida que el nuevo estatus sea uno de los permitidos.
+-- 4. Actualiza el estatus actual en la tabla inscripciones.
+-- 5. Inserta el cambio en historial_estatus.
+-- 6. Devuelve una confirmación con datos del alumno, programa e historial.
+--
+-- Tablas involucradas:
+-- - alumnos
+-- - programas
+-- - inscripciones
+-- - historial_estatus
+
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS sp_registrar_cambio_estatus//
+
+CREATE PROCEDURE sp_registrar_cambio_estatus(
+    IN p_id_inscripcion INT,
+    IN p_nuevo_estatus VARCHAR(30),
+    IN p_motivo VARCHAR(255)
+)
+BEGIN
+    DECLARE v_estatus_actual VARCHAR(30);
+    DECLARE v_existe_inscripcion INT DEFAULT 0;
+    DECLARE v_id_historial INT;
+
+    -- Verifica si la inscripción existe.
+    SELECT COUNT(*)
+    INTO v_existe_inscripcion
+    FROM inscripciones
+    WHERE id_inscripcion = p_id_inscripcion;
+
+    IF v_existe_inscripcion = 0 THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'La inscripción indicada no existe.';
+    END IF;
+
+    -- Valida que el nuevo estatus sea uno de los estatus permitidos.
+    IF p_nuevo_estatus NOT IN (
+        'activo',
+        'baja_empresa',
+        'baja_programa',
+        'inscrito',
+        'suspendido',
+        'reingreso',
+        'egresado'
+    ) THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'El nuevo estatus no es válido.';
+    END IF;
+
+    -- Obtiene el estatus actual de la inscripción.
+    SELECT estatus_actual
+    INTO v_estatus_actual
+    FROM inscripciones
+    WHERE id_inscripcion = p_id_inscripcion;
+
+    -- Evita registrar un cambio si el nuevo estatus es igual al actual.
+    IF v_estatus_actual = p_nuevo_estatus THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'El nuevo estatus es igual al estatus actual.';
+    END IF;
+
+    -- Actualiza el estatus actual de la inscripción.
+    UPDATE inscripciones
+    SET estatus_actual = p_nuevo_estatus
+    WHERE id_inscripcion = p_id_inscripcion;
+
+    -- Inserta el movimiento en el historial.
+    INSERT INTO historial_estatus (
+        id_inscripcion,
+        estatus_anterior,
+        estatus_nuevo,
+        fecha_cambio,
+        motivo
+    )
+    VALUES (
+        p_id_inscripcion,
+        v_estatus_actual,
+        p_nuevo_estatus,
+        CURDATE(),
+        p_motivo
+    );
+
+    SET v_id_historial = LAST_INSERT_ID();
+
+    -- Devuelve una confirmación del cambio realizado.
+    SELECT
+        a.id_alumno,
+        a.nombre,
+        a.empresa,
+        p.nombre_programa,
+        i.id_inscripcion,
+        h.estatus_anterior,
+        h.estatus_nuevo,
+        h.fecha_cambio,
+        h.motivo
+    FROM historial_estatus h
+    INNER JOIN inscripciones i
+        ON h.id_inscripcion = i.id_inscripcion
+    INNER JOIN alumnos a
+        ON i.id_alumno = a.id_alumno
+    INNER JOIN programas p
+        ON i.id_programa = p.id_programa
+    WHERE h.id_historial = v_id_historial;
+END//
+
+DELIMITER ;
