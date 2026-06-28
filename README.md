@@ -310,9 +310,136 @@ CALL sp_registrar_cambio_estatus(
 
 Si la inscripción ya está en `suspendido`, el procedimiento devuelve un error controlado indicando que el nuevo estatus es igual al estatus actual.
 
-### Ejecutar notebook Python
+### Ejecutar notebook Python/Pandas
 
-Pendiente.
+La Parte 2 se encuentra en:
+
+```text
+python/analisis_inscripciones.ipynb
+```
+
+El notebook se conecta a la base de datos MariaDB `inscripciones_db`, carga las tablas principales en DataFrames de Pandas y realiza los análisis solicitados.
+
+---
+
+#### 1. Crear y activar entorno virtual
+
+Desde la raíz del proyecto:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+---
+
+#### 2. Instalar dependencias
+
+```bash
+pip install -r python/requirements.txt
+```
+
+El archivo `requirements.txt` incluye las dependencias necesarias para ejecutar el análisis:
+
+```text
+pandas
+sqlalchemy
+pymysql
+matplotlib
+notebook
+ipykernel
+```
+
+---
+
+#### 3. Crear usuario de solo lectura para Python
+
+Para ejecutar el notebook se puede utilizar cualquier usuario de MariaDB con permisos de lectura sobre la base `inscripciones_db`.
+
+En este proyecto se utilizó un usuario específico de solo lectura llamado `python_user`.
+
+Ejemplo de creación del usuario:
+
+```sql
+CREATE USER IF NOT EXISTS 'python_user'@'localhost'
+IDENTIFIED BY 'python123';
+
+GRANT SELECT ON inscripciones_db.* TO 'python_user'@'localhost';
+
+FLUSH PRIVILEGES;
+```
+
+> Nota: la contraseña anterior es solo un ejemplo local. En otro entorno puede reemplazarse por otra contraseña o por un usuario existente de MariaDB.
+
+---
+
+#### 4. Abrir el notebook
+
+Desde VS Code o Jupyter Notebook, abrir:
+
+```text
+python/analisis_inscripciones.ipynb
+```
+
+Seleccionar como kernel el entorno virtual del proyecto:
+
+```text
+.venv
+```
+
+o el kernel configurado para este entorno.
+
+---
+
+#### 5. Configurar conexión en el notebook
+
+Dentro del notebook se utiliza una configuración simple:
+
+```python
+DB_USER = "python_user"
+DB_HOST = "localhost"
+DB_PORT = 3306
+DB_NAME = "inscripciones_db"
+
+DB_PASSWORD = getpass("Contraseña de MariaDB: ")
+```
+
+La contraseña se solicita en tiempo de ejecución mediante `getpass`, para evitar dejar credenciales escritas dentro del notebook.
+
+Si se utiliza otro usuario local de MariaDB, se debe reemplazar el valor de `DB_USER`.
+
+---
+
+#### 6. Ejecutar el notebook
+
+Ejecutar las celdas en orden.
+
+El notebook realiza:
+
+* Carga de tablas desde MariaDB.
+* Construcción de un DataFrame consolidado.
+* Validación de consistencia de los datos.
+* Conversión de fechas.
+* Distribución de estatus actual por programa.
+* Evolución mensual de altas y bajas.
+* Tasa de activos por programa.
+* Identificación del motivo de baja más frecuente.
+* Gráfica de barras apiladas de estatus por programa.
+* Gráfica de línea de altas y bajas por mes.
+* Gráfica adicional de tasa de activos por programa.
+
+---
+
+### Decisiones y supuestos de la Parte 2
+
+* Se utilizó `sqlalchemy` con `pymysql` para conectarse a MariaDB desde Pandas.
+* La contraseña de la base de datos no se guarda en el notebook; se solicita en tiempo de ejecución.
+* Se creó un DataFrame consolidado a partir de `inscripciones`, `alumnos` y `programas`.
+* Las fechas se convirtieron a formato `datetime64` para permitir análisis mensuales.
+* Las altas se calcularon usando `fecha_inscripcion`.
+* Las bajas se calcularon usando movimientos del historial cuyo `estatus_nuevo` sea `baja_empresa` o `baja_programa`.
+* Como el CSV original representa un snapshot del estado actual, la evolución histórica depende del historial plausible generado en la Parte 1.
+* En el análisis de motivos de baja se contempla la posibilidad de empate entre motivos con la misma frecuencia.
 
 ### Ejecutar Angular
 
@@ -325,7 +452,7 @@ Pendiente.
 * [x] Estructura inicial del proyecto.
 * [x] Archivo CSV agregado.
 * [x] Base de datos MariaDB.
-* [ ] Análisis con Python/Pandas.
+* [x] Análisis con Python/Pandas.
 * [ ] Interfaz Angular.
 * [ ] Preguntas conceptuales.
 * [ ] README final con instrucciones completas.
