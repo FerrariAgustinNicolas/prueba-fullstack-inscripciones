@@ -1,1 +1,45 @@
-<p>resumen works!</p>
+<section class="resumen-section" *ngIf="resumen$ | async as resumen">
+  <h2>Resumen de inscripciones</h2>
+
+  <div class="cards-grid">
+    <article class="summary-card">
+      <span class="card-label">Total alumnos</span>
+      <strong>{{ resumen.total }}</strong>
+    </article>
+
+    <article class="summary-card">
+      <span class="card-label">Activos</span>
+      <strong>{{ resumen.activos }}</strong>
+    </article>
+
+    <article class="summary-card">
+      <span class="card-label">Baja empresa</span>
+      <strong>{{ resumen.bajasEmpresa }}</strong>
+    </article>
+
+    <article class="summary-card">
+      <span class="card-label">Baja programa</span>
+      <strong>{{ resumen.bajasPrograma }}</strong>
+    </article>
+
+    <article class="summary-card">
+      <span class="card-label">Suspendidos</span>
+      <strong>{{ resumen.suspendidos }}</strong>
+    </article>
+
+    <article class="summary-card">
+      <span class="card-label">Inscritos</span>
+      <strong>{{ resumen.inscritos }}</strong>
+    </article>
+
+    <article class="summary-card">
+      <span class="card-label">Reingresos</span>
+      <strong>{{ resumen.reingresos }}</strong>
+    </article>
+
+    <article class="summary-card">
+      <span class="card-label">Egresados</span>
+      <strong>{{ resumen.egresados }}</strong>
+    </article>
+  </div>
+</section>

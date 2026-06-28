@@ -1,0 +1,32 @@
+.resumen-section {
+  margin-bottom: 24px;
+}
+
+.resumen-section h2 {
+  margin-bottom: 16px;
+  font-size: 22px;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.summary-card {
+  padding: 16px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.card-label {
+  display: block;
+  margin-bottom: 8px;
+  color: #555;
+  font-size: 14px;
+}
+
+.summary-card strong {
+  font-size: 28px;
+}
