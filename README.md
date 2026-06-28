@@ -324,7 +324,7 @@ Pendiente.
 
 * [x] Estructura inicial del proyecto.
 * [x] Archivo CSV agregado.
-* [ ] Base de datos MariaDB.
+* [x] Base de datos MariaDB.
 * [ ] Análisis con Python/Pandas.
 * [ ] Interfaz Angular.
 * [ ] Preguntas conceptuales.
